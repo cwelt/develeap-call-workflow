@@ -8,7 +8,7 @@ on:
       - main
 jobs:
   call-reusable-docker-ci:
-    uses: cwelt/develeap-cowsay/.github/workflows/reusable-docker-ci.yml
+    uses: cwelt/develeap-cowsay/.github/workflows/cowsay-ci.yml@main
     #with:
      # image_name: "cowsay"
      # image_tag: "1.0.0"
