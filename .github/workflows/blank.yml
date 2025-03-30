@@ -1,0 +1,16 @@
+name: Docker Image CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  call-reusable-docker-ci:
+    uses: cwelt/develeap-cowsay/.github/workflows/reusable-docker-ci.yml
+    #with:
+     # image_name: "cowsay"
+     # image_tag: "1.0.0"
+     # push_to_ecr: true
+     # ecr_registry: "727646476061.dkr.ecr.ap-south-1.amazonaws.com/cw"
