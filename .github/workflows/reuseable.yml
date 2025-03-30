@@ -1,0 +1,43 @@
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      image_tag:
+        required: false
+        type: string
+        default: latest
+      push_to_ecr:
+        required: false
+        type: boolean
+        default: false
+      ecr_registry:
+        required: false
+        type: string
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Checkout
+        uses: actions/checkout@v4
+      - name: Docker Image Build
+        run: |
+          docker build . --file Dockerfile --tag ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          docker images
+      - name: Run Docker Container
+        run: docker run -d --rm -p 8080:8080 ${{ inputs.image_name }}:${{ inputs.image_tag }}
+      - name: Assert Container is up and running
+        uses: nrukavkov/open-ports-check-action@v1
+        with:
+          port: 8080
+          host: 'localhost'
+          pause: 5000
+          needFail: 'true'
+          reverse: 'false'
+      - name: Push to ECR (if enabled)
+        if: inputs.push_to_ecr == true
+        run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ inputs.ecr_registry }}
+          docker tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.ecr_registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+          docker push ${{ inputs.ecr_registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
